@@ -609,6 +609,13 @@ int32_t cmdline_for_sprite(const char** argv, int32_t argc)
         fprintf(stdout, "Finished\n");
         return 1;
     }
+    else
+    {
+        fprintf(stderr, "Unknown sprite command.\n");
+        return 1;
+    }
+    return 0;
+}
 
     fprintf(stderr, "Unknown sprite command.\n");
     return 1;

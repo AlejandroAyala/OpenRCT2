@@ -4,8 +4,25 @@ if (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
     message(FATAL_ERROR "Building in-source is not supported! Create a build dir and remove ${CMAKE_SOURCE_DIR}/CMakeCache.txt")
 endif ()
 
+if (VITA)
+    if( NOT DEFINED CMAKE_TOOLCHAIN_FILE )
+        if(DEFINED ENV{VITASDK})
+            set(CMAKE_TOOLCHAIN_FILE "$ENV{VITASDK}/share/vita.toolchain.cmake" CACHE PATH "toolchain file")
+        else()
+            message(FATAL_ERROR "Please define VITASDK to point to your SDK path!")
+        endif()
+    endif()
+
+    include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
+endif()
+
 # Options
 option(DISABLE_OPENGL "Disable OpenGL support.")
+
+if (VITA)
+    set(DISABLE_OPENGL ON)
+    set(ENABLE_LIGHTFX OFF)
+endif()
 
 # Third party libraries
 if (MSVC)
@@ -20,7 +37,7 @@ if (NOT DISABLE_OPENGL)
     # GL doesn't work nicely with macOS, while find_package doesn't work with multiarch on Ubuntu.
     if (APPLE)
         find_package(OpenGL REQUIRED)
-    elseif (NOT WIN32)
+    elseif (NOT WIN32 AND NOT VITA)
         PKG_CHECK_MODULES(GL REQUIRED gl)
     endif ()
 endif ()
@@ -65,11 +82,42 @@ if (NOT DISABLE_OPENGL)
     endif ()
 endif ()
 
-# Includes
-target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/.."
-                                              ${SPEEX_INCLUDE_DIRS})
+if (VITA)
+    target_link_libraries(${PROJECT}
+        vita2d
+        stdc++
+        c
+        z
+        m
+        zip
+        freetype
+        ssl
+        curl
+        fts
+        SceAudio_stub
+        SceAudiodec_stub
+        SceCommonDialog_stub
+        SceCtrl_stub
+        SceDisplay_stub
+        SceGxm_stub
+        SceIme_stub
+        SceSysmodule_stub
+        SceTouch_stub
+        SceNetCtl_stub
+        SceHid_stub
+    )
+endif()
+
+
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${SDL2_INCLUDE_DIRS}
                                                      "${CMAKE_CURRENT_LIST_DIR}/../thirdparty")
+
+
+if (VITA)
+    target_include_directories(${PROJECT} PRIVATE ${SDL2_INCLUDE_DIRS})
+else()
+    target_include_directories(${PROJECT} SYSTEM PRIVATE ${SDL2_INCLUDE_DIRS})
+endif()
 
 # Compiler flags
 if (WIN32)

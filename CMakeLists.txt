@@ -38,6 +38,23 @@ if (APPLE)
         message("Unknown macOS architecture: ${ARCH}. Behavior may be unexpected.")
     endif()
 endif ()
+
+option(VITA "Build for PS Vita")
+
+if (VITA)
+    if (NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+        if(DEFINED ENV{VITASDK})
+            set(CMAKE_TOOLCHAIN_FILE "$ENV{VITASDK}/share/vita.toolchain.cmake" CACHE PATH "toolchain file")
+        else()
+            message(FATAL_ERROR "Please define VITASDK to point to your SDK path!")
+        endif()
+    endif()
+
+    set(SHORT_NAME openrct2)
+
+    include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
+endif()
+
 project(openrct2 CXX)
 
 if (APPLE)
@@ -178,6 +195,10 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_QUIET
 )
+if (VITA)
+    set(WITH_TESTS OFF)
+    set(DISABLE_NETWORK ON)
+endif()
 
 # Define current git branch
 execute_process(

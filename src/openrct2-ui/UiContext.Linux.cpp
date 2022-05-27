@@ -7,7 +7,7 @@
  * OpenRCT2 is licensed under the GNU General Public License version 3.
  *****************************************************************************/
 
-#if (defined(__unix__) || defined(__EMSCRIPTEN__)) && !defined(__ANDROID__) && !defined(__APPLE__) || defined(__vita__)
+#if (defined(__unix__) || defined(__EMSCRIPTEN__)) && !defined(__ANDROID__) && !defined(__APPLE__)
 
 #    include "UiContext.h"
 
@@ -252,25 +252,8 @@ namespace OpenRCT2::Ui
             }
             return result;
         }
-#else        
-        std::string ShowFileDialog(SDL_Window * window, const FileDialogDesc &desc) override
-            {
-                STUB();
 
-                return nullptr;
-            }
-
-            std::string ShowDirectoryDialog(SDL_Window * window, const std::string &title) override
-            {
-                log_info(title.c_str());
-                STUB();
-
-                return "ux0:data/openrct2";
-            }
-
-#endif
-    private:
-        static DIALOG_TYPE GetDialogApp(std::string* executablePath)
+        bool HasFilePicker() const override
         {
             if (!_hasFilePicker.has_value())
             {

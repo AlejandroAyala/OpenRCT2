@@ -145,9 +145,6 @@ namespace OpenRCT2
 
     uint64_t FileStream::GetPosition() const
     {
-#if defined(_MSC_VER)
-        return _ftelli64(_file);
-#elif (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__) || defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__vita__)
         return ftello(_file);
     }
 
@@ -158,20 +155,6 @@ namespace OpenRCT2
 
     void FileStream::Seek(int64_t offset, int32_t origin)
     {
-#if defined(_MSC_VER)
-        switch (origin)
-        {
-            case STREAM_SEEK_BEGIN:
-                _fseeki64(_file, offset, SEEK_SET);
-                break;
-            case STREAM_SEEK_CURRENT:
-                _fseeki64(_file, offset, SEEK_CUR);
-                break;
-            case STREAM_SEEK_END:
-                _fseeki64(_file, offset, SEEK_END);
-                break;
-        }
-#elif (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__) || defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__vita__)
         switch (origin)
         {
             case STREAM_SEEK_BEGIN:
